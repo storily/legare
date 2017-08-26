@@ -1,0 +1,18 @@
+[package]
+authors = ["Félix Saparelli <felix@passcod.name>"]
+name = "via-appia"
+version = "0.1.0"
+
+[dependencies]
+env_logger = "0.4.3"
+hyper = "0.10.11"
+iron = "0.5.1"
+log = "0.3.8"
+logger = "0.3.0"
+mount = "0.3.0"
+
+[dependencies.juniper]
+git = "https://github.com/graphql-rust/juniper"
+
+[dependencies.juniper_iron]
+git = "https://github.com/graphql-rust/juniper_iron"
