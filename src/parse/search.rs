@@ -54,6 +54,23 @@ fn multiple_words() {
 }
 
 #[test]
+fn ids() {
+    //           0|       10|        20|  |22
+    test_parser!("#123 #ash (#123) \"#123\"", [
+        expression(0, 23, [
+            id(0, 4),
+            word(5, 9),
+            group(10, 16, [
+                expression(11, 15, [
+                    id(11, 15)
+                ])
+            ]),
+            quote(17, 23)
+        ])
+    ]);
+}
+
+#[test]
 fn empty_group() {
     test_parser!("()", [
         expression(0, 2, [
