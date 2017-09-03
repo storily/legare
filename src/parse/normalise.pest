@@ -60,7 +60,10 @@ dash = @{
   "\u{2012}" | // FIGURE DASH
   "\u{2013}" | // EN DASH
   "\u{2014}" | // EM DASH
+  "\u{2015}" | // HORIZONTAL BAR
   "\u{2053}" | // SWUNG DASH
+  "\u{2E3A}" | // 2 EM DASH
+  "\u{2E3B}" | // 3 EM DASH
   "\u{301C}" | // JAPANESE WAVE DASH
   "\u{30FC}" | // CHOONPU
   "\u{FF5E}"   // CHINESE WAVE DASH
