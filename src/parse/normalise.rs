@@ -8,7 +8,7 @@ const _GRAMMAR: &'static str = include_str!("normalise.pest");
 struct Normaliser;
 
 pub fn normalise(input: String) -> String {
-    Normaliser::parse_str(Rule::space_split, &input)
+    Normaliser::parse_str(Rule::space_split, &(input.to_lowercase()))
     .unwrap()
     .filter_map(|pair| match pair.as_rule() {
         Rule::not_space => {
