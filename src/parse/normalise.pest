@@ -1,3 +1,17 @@
+space_split = _{ soi ~ ws* ~ (not_space ~ ws*)* ~ eoi }
+
+not_space = { (!ws ~ char)+ }
+
+char = _{
+  double_quote |
+  single_quote |
+  dash |
+  left_bracket |
+  right_bracket |
+  equals |
+  other
+}
+
 // Cannot call it whitespace as we don't want to override the Parser's
 ws = @{
   "\u{09}" | // TAB
@@ -71,17 +85,3 @@ equals = {
 }
 
 other = @{ any }
-
-char = _{
-  double_quote |
-  single_quote |
-  dash |
-  left_bracket |
-  right_bracket |
-  equals |
-  other
-}
-
-not_space = { (!ws ~ char)+ }
-space_split = _{ soi ~ ws* ~ (not_space ~ ws*)* ~ eoi }
-
