@@ -71,6 +71,30 @@ fn ids() {
 }
 
 #[test]
+fn pairs() {
+    //           0|       10|       20|        30|      38|
+    test_parser!("word pair=2 (n=tuple word) \"pair=false\"", [
+        expression(0, 39, [
+            word(0, 4),
+            pair(5, 11, [
+                key(5, 9),
+                value(10, 11)
+            ]),
+            group(12, 26, [
+                expression(13, 25, [
+                    pair(13, 20, [
+                        key(13, 14),
+                        value(15, 20)
+                    ]),
+                    word(21, 25)
+                ])
+            ]),
+            quote(27, 39)
+        ])
+    ]);
+}
+
+#[test]
 fn empty_group() {
     test_parser!("()", [
         expression(0, 2, [

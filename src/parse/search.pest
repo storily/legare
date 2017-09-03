@@ -4,12 +4,18 @@ expression = { (
   quote |
   group |
   id |
+  pair |
   word
 )+ }
 
 quote = @{ "\"" ~ (!"\"" ~ any)* ~ "\"" }
 group = { "(" ~ expression? ~ ")" }
 id = @{ "#" ~ ('0'..'9')+ }
+pair = ${ key ~ "=" ~ value }
+
 word = @{ (!(" " | "(" | ")") ~ any)+ }
+key = @{ (!(" " | "(" | ")" | "=") ~ any)+ }
+value = @{ word }
+
 
 whitespace = _{ " " }
