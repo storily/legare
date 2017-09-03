@@ -1,6 +1,7 @@
 search = _{ soi ~ expression ~ eoi }
 
 expression = { (
+  logic |
   quote |
   group |
   id |
@@ -8,10 +9,15 @@ expression = { (
   word
 )+ }
 
+logic = _{ logic_and | logic_not | logic_or }
 quote = @{ "\"" ~ (!"\"" ~ any)* ~ "\"" }
 group = { "(" ~ expression? ~ ")" }
 id = @{ "#" ~ ('0'..'9')+ }
 pair = ${ key ~ "=" ~ value }
+
+logic_and = @{ "and" }
+logic_not = @{ "not" }
+logic_or = @{ "or" }
 
 word = @{ (!(" " | "(" | ")") ~ any)+ }
 key = @{ (!(" " | "(" | ")" | "=") ~ any)+ }

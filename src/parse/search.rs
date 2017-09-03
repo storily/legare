@@ -95,6 +95,24 @@ fn pairs() {
 }
 
 #[test]
+fn logic() {
+    //           0|       10|       20|         30|
+    test_parser!("hamlet and to=be or not \"to be\"", [
+        expression(0, 31, [
+            word(0, 6),
+            logic_and(7, 10),
+            pair(11, 16, [
+                key(11, 13),
+                value(14, 16)
+            ]),
+            logic_or(17, 19),
+            logic_not(20, 23),
+            quote(24, 31)
+        ])
+    ]);
+}
+
+#[test]
 fn empty_group() {
     test_parser!("()", [
         expression(0, 2, [
