@@ -8,6 +8,13 @@ extern crate juniper_iron;
 extern crate log;
 extern crate logger;
 extern crate mount;
+#[macro_use]
+extern crate pest_derive;
+
+#[cfg(test)] #[macro_use]
+extern crate pest;
+#[cfg(not(test))]
+extern crate pest;
 
 use hyper::net::{HttpListener, NetworkListener};
 use graph::Root;
@@ -21,6 +28,7 @@ use std::env;
 use std::os::unix::io::FromRawFd;
 
 mod graph;
+mod parse;
 
 fn context_factory(_: &mut Request) -> Root {
     Root::new()

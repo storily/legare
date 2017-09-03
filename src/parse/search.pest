@@ -1,0 +1,13 @@
+search = _{ soi ~ expression ~ eoi }
+
+expression = { (
+  quote |
+  group |
+  word
+)+ }
+
+quote = @{ "\"" ~ (!"\"" ~ any)* ~ "\"" }
+group = { "(" ~ expression? ~ ")" }
+word = @{ (!(" " | "(" | ")") ~ any)+ }
+
+whitespace = _{ " " }

@@ -1,0 +1,87 @@
+// Cannot call it whitespace as we don't want to override the Parser's
+ws = @{
+  "\u{09}" | // TAB
+  "\u{0A}" | // LF
+  "\u{0D}" | // CR
+  "\u{20}" | // Space
+  "\u{85}" | // NEL
+  "\u{A0}" | // NBSP
+
+  "\u{2000}" | // EN QUAD
+  "\u{2001}" | // EM QUAD
+  "\u{2002}" | // EN SPACE
+  "\u{2003}" | // EM SPACE
+  "\u{2004}" | // ⅓ EM SPACE
+  "\u{2005}" | // ¼ EM SPACE
+  "\u{2006}" | // ⅙ EM SPACE
+  "\u{2007}" | // FIGURE SPACE
+  "\u{2008}" | // PUNCTUATION SPACE
+  "\u{2009}" | // THIN SPACE
+  "\u{200A}" | // HAIR SPACE
+
+  "\u{202F}" | // NARROW NBSP
+  "\u{205F}" | // MATH SPACE
+  "\u{3000}"   // IDEOGRAPHIC SPACE
+}
+
+double_quote = @{
+  "\u{0022}" | // STRAIGHT DOUBLE
+  "\u{00AB}" | // LEFT GUILLEMET
+  "\u{00BB}" | // RIGHT GUILLEMET
+  "\u{201C}" | // LEFT DOUBLE CURVY
+  "\u{201D}"   // RIGHT DOUBLE CURVY
+}
+
+single_quote = @{
+  "\u{0027}" | // STRAIGHT SINGLE
+  "\u{2039}" | // LEFT CHEVRON
+  "\u{203A}" | // RIGHT CHEVRON
+  "\u{2018}" | // LEFT SINGLE CURVY
+  "\u{2019}"   // RIGHT SINGLE CURVY
+}
+
+dash = @{
+  "--"       | // DOUBLE HYPHEN
+  "\u{202D}" | // HYPHEN MINUS
+  "\u{2012}" | // FIGURE DASH
+  "\u{2013}" | // EN DASH
+  "\u{2014}" | // EM DASH
+  "\u{2053}" | // SWUNG DASH
+  "\u{301C}" | // JAPANESE WAVE DASH
+  "\u{30FC}" | // CHOONPU
+  "\u{FF5E}"   // CHINESE WAVE DASH
+}
+
+left_bracket = @{
+  "\u{0028}" | // LEFT PAREN
+  "\u{005B}" | // LEFT SQUARE
+  "\u{007B}"   // LEFT CURLY
+}
+
+right_bracket = @{
+  "\u{0029}" | // RIGHT PAREN
+  "\u{005D}" | // RIGHT SQUARE
+  "\u{007D}"   // RIGHT CURLY
+}
+
+equals = {
+  "\u{003A}" | // COLON
+  "\u{003D}" | // EQUALS
+  "\u{2248}"   // ALMOST EQUAL
+}
+
+other = @{ any }
+
+char = _{
+  double_quote |
+  single_quote |
+  dash |
+  left_bracket |
+  right_bracket |
+  equals |
+  other
+}
+
+not_space = { (!ws ~ char)+ }
+space_split = _{ soi ~ ws* ~ (not_space ~ ws*)* ~ eoi }
+

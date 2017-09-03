@@ -1,4 +1,6 @@
 use juniper::Context;
+use parse::normalise::normalise;
+use parse::search::tokenise;
 
 pub struct Root {}
 impl Context for Root {}
@@ -12,11 +14,24 @@ impl Root {
 graphql_object!(Root: Root as "Query" |&self| {
     description: "The root query object of the schema"
 
-    field ping() -> String {
-        info!("QUÆSTIO ping");
-        "pong".to_string()
+    field hello() -> Vec<String> {
+        vec![
+            "Mihi est hic?".into(),
+            "Tu exaudi me?".into(),
+            "Si vales bene est, ego valeo.".into()
+        ]
+    }
+
+    field normalise(search: String) -> String {
+        normalise(search)
+    }
+
+    field parse(search: String) -> Vec<String> {
+        let normed = normalise(search);
+        if normed.len() == 0 {
+            vec![]
+        } else {
+            tokenise(normed)
+        }
     }
 });
-
-// Query: QUÆSTIO
-// Mutation: MUTATIONEM

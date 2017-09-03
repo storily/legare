@@ -10,6 +10,8 @@ iron = "0.5.1"
 log = "0.3.8"
 logger = "0.3.0"
 mount = "0.3.0"
+pest = "1.0.0-beta.7"
+pest_derive = "1.0.0-beta.7"
 
 [dependencies.juniper]
 git = "https://github.com/graphql-rust/juniper"
