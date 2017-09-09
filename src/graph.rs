@@ -12,7 +12,7 @@ impl Root {
 }
 
 graphql_object!(Root: Root as "Query" |&self| {
-    description: "The root query object of the schema"
+    description: "Normalising and parsing services for Cogitare.nz"
 
     field hello() -> Vec<String> {
         vec![
@@ -35,3 +35,4 @@ graphql_object!(Root: Root as "Query" |&self| {
         }
     }
 });
+
