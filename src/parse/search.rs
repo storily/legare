@@ -17,9 +17,9 @@ pub enum Token {
     Pair(String, String),
     Id(usize),
     Quote(String),
-    LogicAnd,
-    LogicNot,
-    LogicOr,
+    LogicAnd(()),
+    LogicNot(()),
+    LogicOr(()),
     Group(Vec<Token>)
 }
 
@@ -50,12 +50,22 @@ fn expression(pairs: &Pairs<Rule, StrInput>) -> Expression {
     for tok in pairs.clone() {
         match tok.as_rule() {
             Rule::word => tokens.push(Token::Word(ex(&tok))),
-            Rule::id => tokens.push(Token::Id(ex(&tok).parse().unwrap_or(0))), // if can't parse, discard
             Rule::quote => tokens.push(Token::Quote(quote_ex(&tok))),
-            Rule::logic_and => tokens.push(Token::LogicAnd),
-            Rule::logic_not => tokens.push(Token::LogicNot),
-            Rule::logic_or => tokens.push(Token::LogicOr),
-            // pair
+            Rule::logic_and => tokens.push(Token::LogicAnd(())),
+            Rule::logic_not => tokens.push(Token::LogicNot(())),
+            Rule::logic_or => tokens.push(Token::LogicOr(())),
+            Rule::id => {
+                let s = ex(&tok);
+                let maybe_num = s.trim_left_matches('#').parse::<usize>();
+                tokens.push(match maybe_num {
+                    Err(_) => Token::Word(s),
+                    Ok(n) => Token::Id(n)
+                });
+            },
+            Rule::pair => match pair_ex(tok) {
+                None => {},
+                Some(p) => tokens.push(Token::Pair(p.0, p.1))
+            },
             // group (recurse)
             _ => {}
         };
@@ -71,6 +81,23 @@ fn ex(tok: &Pair<Rule, StrInput>) -> String {
 fn quote_ex(tok: &Pair<Rule, StrInput>) -> String {
     let quoted = ex(tok);
     quoted[1..(quoted.len()-1)].into()
+}
+
+fn pair_ex(tok: Pair<Rule, StrInput>) -> Option<(String, String)> {
+    let mut inner = tok.into_inner();
+    let key;
+    match inner.next() {
+        None => return None,
+        Some(k) => { key = ex(&k); }
+    };
+
+    let value;
+    match inner.next() {
+        None => return None,
+        Some(v) => { value = ex(&v); }
+    };
+
+    Some((key, value))
 }
 
 #[cfg(test)]
