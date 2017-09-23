@@ -3,7 +3,7 @@ use iron::status;
 use iron_json_response::JsonResponse;
 use std::io::{self, Read};
 use super::parse::normalise::normalise;
-use super::parse::search::tokenise;
+use super::parse::search::{Expression, tokenise};
 
 fn io_error(e: io::Error) -> Response {
     let err = json!({
@@ -31,7 +31,7 @@ fn parse_error(details: Vec<String>) -> Response {
     resp
 }
 
-fn good(normed: String, parsed: Vec<String>) -> Response {
+fn good(normed: String, parsed: Expression) -> Response {
     let err = json!({
         "error": false,
         "normalised": normed,

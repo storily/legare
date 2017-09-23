@@ -1,3 +1,5 @@
+use pest::inputs::StrInput;
+use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 
 #[cfg(debug_assertions)]
@@ -7,20 +9,68 @@ const _GRAMMAR: &'static str = include_str!("search.pest");
 #[grammar = "parse/search.pest"]
 struct Searcher;
 
-pub fn tokenise(input: String) -> Result<Vec<String>, Vec<String>> {
-    let maybe_expr = Searcher::parse_str(Rule::search, &input);
-    match maybe_expr {
+pub type Expression = Vec<Token>;
+
+#[derive(Debug, Serialize)]
+pub enum Token {
+    Word(String),
+    Pair(String, String),
+    Id(usize),
+    Quote(String),
+    LogicAnd,
+    LogicNot,
+    LogicOr,
+    Group(Vec<Token>)
+}
+
+pub fn tokenise(input: String) -> Result<Expression, Vec<String>> {
+    let top = parse(&input)?;
+
+    let tokens = expression(&top);
+    debug!("{:?}", tokens);
+
+    Ok(tokens)
+}
+
+fn parse(input: &str) -> Result<Pairs<Rule, StrInput>, Vec<String>> {
+    match Searcher::parse_str(Rule::search, input) {
+        Ok(mut pairs) => match pairs.next() {
+            None => Err(vec!("no input".into())),
+            Some(p) => Ok(p.into_inner())
+        },
         Err(err) => Err(format!("{}", err)
             .lines()
             .map(|l| format!("{}", l))
-            .collect()),
-        Ok(mut pairs) => Ok(pairs.next().unwrap().into_inner().filter_map(|pair| match pair.as_rule() {
-            rule @ _ => {
-                Some(format!("{:?} => {}", rule, pair.clone().into_span().as_str()))
-            }
-        })
-        .collect())
+            .collect())
     }
+}
+
+fn expression(pairs: &Pairs<Rule, StrInput>) -> Expression {
+    let mut tokens = vec![];
+    for tok in pairs.clone() {
+        match tok.as_rule() {
+            Rule::word => tokens.push(Token::Word(ex(&tok))),
+            Rule::id => tokens.push(Token::Id(ex(&tok).parse().unwrap_or(0))), // if can't parse, discard
+            Rule::quote => tokens.push(Token::Quote(quote_ex(&tok))),
+            Rule::logic_and => tokens.push(Token::LogicAnd),
+            Rule::logic_not => tokens.push(Token::LogicNot),
+            Rule::logic_or => tokens.push(Token::LogicOr),
+            // pair
+            // group (recurse)
+            _ => {}
+        };
+    }
+
+    tokens
+}
+
+fn ex(tok: &Pair<Rule, StrInput>) -> String {
+    tok.clone().into_span().as_str().into()
+}
+
+fn quote_ex(tok: &Pair<Rule, StrInput>) -> String {
+    let quoted = ex(tok);
+    quoted[1..(quoted.len()-1)].into()
 }
 
 #[cfg(test)]

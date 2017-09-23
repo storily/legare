@@ -12,6 +12,8 @@ logger = "0.3.0"
 mount = "0.3.0"
 pest = "1.0.0-beta.10"
 pest_derive = "1.0.0-beta.10"
+serde = "1.0.15"
+serde_derive = "1.0.15"
 serde_json = "1.0.3"
 
 [dependencies.iron-json-response]
