@@ -7,19 +7,19 @@ const _GRAMMAR: &'static str = include_str!("search.pest");
 #[grammar = "parse/search.pest"]
 struct Searcher;
 
-pub fn tokenise(input: String) -> Vec<String> {
+pub fn tokenise(input: String) -> Result<Vec<String>, Vec<String>> {
     let maybe_expr = Searcher::parse_str(Rule::search, &input);
     match maybe_expr {
-        Err(err) => format!("{}", err)
+        Err(err) => Err(format!("{}", err)
             .lines()
             .map(|l| format!("{}", l))
-            .collect(),
-        Ok(mut pairs) => pairs.next().unwrap().into_inner().filter_map(|pair| match pair.as_rule() {
+            .collect()),
+        Ok(mut pairs) => Ok(pairs.next().unwrap().into_inner().filter_map(|pair| match pair.as_rule() {
             rule @ _ => {
                 Some(format!("{:?} => {}", rule, pair.clone().into_span().as_str()))
             }
         })
-        .collect()
+        .collect())
     }
 }
 

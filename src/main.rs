@@ -1,15 +1,15 @@
 extern crate env_logger;
 extern crate hyper;
 extern crate iron;
-#[macro_use]
-extern crate juniper;
-extern crate juniper_iron;
+extern crate iron_json_response;
 #[macro_use]
 extern crate log;
 extern crate logger;
 extern crate mount;
 #[macro_use]
 extern crate pest_derive;
+#[macro_use]
+extern crate serde_json;
 
 #[cfg(test)] #[macro_use]
 extern crate pest;
@@ -17,17 +17,15 @@ extern crate pest;
 extern crate pest;
 
 use hyper::net::{HttpListener, NetworkListener};
-use graph::Root;
 use iron::prelude::*;
 use iron::Protocol;
-use juniper::EmptyMutation;
-use juniper_iron::{GraphQLHandler, GraphiQLHandler};
+use iron_json_response::JsonResponseMiddleware;
 use logger::Logger;
 use mount::Mount;
 use std::env;
 use std::os::unix::io::FromRawFd;
 
-mod graph;
+mod handler;
 mod parse;
 
 fn main() {
@@ -41,17 +39,14 @@ fn main() {
 
     let mut mount = Mount::new();
     info!("Mounting /");
-    mount.mount("/", GraphiQLHandler::new("/graphql"));
-    info!("Mounting /graphql");
-    mount.mount("/graphql", GraphQLHandler::new(
-        |_: &mut Request| Root::new(),
-        Root::new(),
-        EmptyMutation::<Root>::new()
-    ));
+    mount.mount("/", handler::parse);
+
+    debug!("Making iron chain");
+    let mut chain = Chain::new(mount);
+    chain.link_after(JsonResponseMiddleware::new());
 
     debug!("Mounting request logger");
     let (logger_before, logger_after) = Logger::new(None);
-    let mut chain = Chain::new(mount);
     chain.link_before(logger_before);
     chain.link_after(logger_after);
 
