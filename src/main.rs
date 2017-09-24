@@ -13,7 +13,8 @@ extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
 
-#[cfg(test)] #[macro_use]
+#[cfg(test)]
+#[macro_use]
 extern crate pest;
 #[cfg(not(test))]
 extern crate pest;
@@ -53,7 +54,8 @@ fn main() {
     chain.link_after(logger_after);
 
     debug!("Finding socket");
-    let mut listener = env::var("LISTEN_FD").ok()
+    let mut listener = env::var("LISTEN_FD")
+        .ok()
         .and_then(|fd| fd.parse().ok())
         .and_then(|fd| {
             info!("Found LISTEN_FD, binding to that socket");
@@ -67,7 +69,8 @@ fn main() {
             HttpListener::new(addr).unwrap()
         });
 
-    let netstr = listener.local_addr()
+    let netstr = listener
+        .local_addr()
         .and_then(|a| Ok(format!("{}", a)))
         .unwrap_or("LISTEN_FD".into());
 

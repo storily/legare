@@ -3,9 +3,9 @@ use iron::status;
 use iron_json_response::JsonResponse;
 use std::io::{self, Read};
 use super::parse::normalise::normalise;
-use super::parse::search::{Expression, tokenise};
+use super::parse::search::{tokenise, Expression};
 
-fn io_error(e: io::Error) -> Response {
+fn bad_io(e: io::Error) -> Response {
     let err = json!({
         "error": "io",
         "reason": "Something went wrong reading the body of the request.",
@@ -18,7 +18,7 @@ fn io_error(e: io::Error) -> Response {
     resp
 }
 
-fn parse_error(details: Vec<String>) -> Response {
+fn bad_parse(details: Vec<String>) -> Response {
     let err = json!({
         "error": "parse",
         "reason": "The format of the search query is bad.",
@@ -39,15 +39,14 @@ fn good(normed: String, parsed: Expression) -> Response {
     });
 
     let mut resp = Response::new();
-    resp.set_mut(JsonResponse::json(err))
-        .set_mut(status::Ok);
+    resp.set_mut(JsonResponse::json(err)).set_mut(status::Ok);
     resp
 }
 
 pub fn parse(req: &mut Request) -> IronResult<Response> {
     let mut query = String::new();
     if let Err(e) = req.body.read_to_string(&mut query) {
-        return Ok(io_error(e))
+        return Ok(bad_io(e));
     }
 
     debug!("Query: {}", query);
@@ -55,8 +54,8 @@ pub fn parse(req: &mut Request) -> IronResult<Response> {
     let data = tokenise(normed.clone());
     debug!("Result: {:?}", data);
 
-    match data {
-        Err(details) => Ok(parse_error(details)),
-        Ok(tokens) => Ok(good(normed, tokens))
-    }
+    Ok(match data {
+        Err(details) => bad_parse(details),
+        Ok(tokens) => good(normed, tokens),
+    })
 }

@@ -20,28 +20,25 @@ pub enum Token {
     LogicAnd(()),
     LogicNot(()),
     LogicOr(()),
-    Group(Expression)
+    Group(Expression),
 }
 
 pub fn tokenise(input: String) -> Result<Expression, Vec<String>> {
-    let top = parse(&input)?;
-
-    let tokens = expression(top);
-    debug!("{:?}", tokens);
-
-    Ok(tokens)
+    Ok(expression(parse(&input)?))
 }
 
 fn parse(input: &str) -> Result<Pairs<Rule, StrInput>, Vec<String>> {
     match Searcher::parse_str(Rule::search, input) {
         Ok(mut pairs) => match pairs.next() {
-            None => Err(vec!("no input".into())),
-            Some(p) => Ok(p.into_inner())
+            None => Err(vec!["no input".into()]),
+            Some(p) => Ok(p.into_inner()),
         },
-        Err(err) => Err(format!("{}", err)
-            .lines()
-            .map(|l| format!("{}", l))
-            .collect())
+        Err(err) => Err(
+            format!("{}", err)
+                .lines()
+                .map(|l| format!("{}", l))
+                .collect(),
+        ),
     }
 }
 
@@ -59,16 +56,16 @@ fn expression(pairs: Pairs<Rule, StrInput>) -> Expression {
                 let maybe_num = s.trim_left_matches('#').parse::<usize>();
                 tokens.push(match maybe_num {
                     Err(_) => Token::Word(s),
-                    Ok(n) => Token::Id(n)
+                    Ok(n) => Token::Id(n),
                 });
-            },
+            }
             Rule::pair => match pair_ex(tok) {
-                None => {},
-                Some(p) => tokens.push(Token::Pair(p.0, p.1))
+                None => {}
+                Some(p) => tokens.push(Token::Pair(p.0, p.1)),
             },
             Rule::group => match group_ex(tok) {
-                None => {},
-                Some(e) => tokens.push(Token::Group(e))
+                None => {}
+                Some(e) => tokens.push(Token::Group(e)),
             },
             _ => {}
         };
@@ -83,7 +80,7 @@ fn ex(tok: Pair<Rule, StrInput>) -> String {
 
 fn quote_ex(tok: Pair<Rule, StrInput>) -> String {
     let quoted = ex(tok);
-    quoted[1..(quoted.len()-1)].into()
+    quoted[1..(quoted.len() - 1)].into()
 }
 
 fn pair_ex(tok: Pair<Rule, StrInput>) -> Option<(String, String)> {
@@ -92,32 +89,30 @@ fn pair_ex(tok: Pair<Rule, StrInput>) -> Option<(String, String)> {
     let key;
     match inner.next() {
         None => return None,
-        Some(k) => { key = ex(k); }
+        Some(k) => {
+            key = ex(k);
+        }
     };
 
     let value;
     match inner.next() {
         None => return None,
-        Some(v) => { value = ex(v); }
+        Some(v) => {
+            value = ex(v);
+        }
     };
 
     Some((key, value))
 }
 
 fn group_ex(tok: Pair<Rule, StrInput>) -> Option<Expression> {
-    let expr;
     match tok.into_inner().next() {
-        None => return None,
+        None => None,
         Some(e) => match e.as_rule() {
-            Rule::expression => { expr = e; },
-            _ => return None
-        }
-    };
-
-    let inner = expr.into_inner();
-    debug!("Inner {:?}", inner);
-
-    Some(expression(inner))
+            Rule::expression => Some(expression(e.into_inner())),
+            _ => None,
+        },
+    }
 }
 
 #[cfg(test)]
